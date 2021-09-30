@@ -12,25 +12,57 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <unistd.h>
 
-int validateGuess(char str[]);
+int validateNumber(char str[]);
 int validateMenu(char c);
 
 void opt1(int max);
 void opt2();
 void opt3();
 
-int MAX_NUM = 10;
+int static MAX_NUM = 10;
 int quitFlag = 1; //0 = false, 1 = true;
 
 
 
 void main(void)
 {
-    int invalidMenu;
+    int invalidMenu; //flag to check if menu input is valid
+    FILE *fp;
+    char buff[10];
+    const char *fileName = "SavedMax.txt";
+
+    printf("Reading previous saved game data... \n");
+
+
+    if(access(fileName, F_OK) == 0) //if file exists
+    {
+        fp = fopen(fileName, "r"); //file should only have an int stored.
+        fscanf(fp, "%s", buff); //buff now has an int.
+
+        printf("Stored number is %s\n", buff); //testing buff
+
+        if (validateNumber(buff) == 1) //checking for consistency in game file.
+        {
+            if (strlen(buff) > 0 && strlen(buff) < 3) //checking if input is correct.
+                MAX_NUM = atoi(buff);  //put int into MAX_NUM
+        
+        }
+        else
+            printf("Corrupted game file. Max number set to default. \n");
+        
+    }
+    else //file doesn't exist
+    {
+        printf("Creating new save file. \n");
+        fp = fopen(fileName, "w+");
+    }
+
     
 
-    do
+
+    do //main menu
     {
         
         printf("WELCOME TO THE GAME!!!\n");
@@ -66,7 +98,10 @@ void main(void)
     } while (quitFlag);
     
 
-
+    //Before closing game, save any MAX_NUM in file.
+    fp = freopen(fileName, "w+", stdout); //reopening file.
+    printf("%d", MAX_NUM); //rewriting file with current max number.
+    fclose(stdout); 
 
 
 
@@ -75,7 +110,7 @@ void main(void)
 
 
 
-int validateGuess(char str[])
+int validateNumber(char str[])
 {
     int strLength = strlen(str);
     
@@ -163,7 +198,7 @@ void opt1(int max)
 
         scanf("%s", str); //asking for input
 
-        validGuess = validateGuess(str); //validating guess
+        validGuess = validateNumber(str); //validating input
 
         if (validGuess == 2) //quit game if player typed q or Q in input
         {
@@ -219,7 +254,7 @@ void opt2()
         char str[10]; //to store input
         scanf("%s", str); //asking for input
 
-            validInput = validateGuess(str); //validating guess
+            validInput = validateNumber(str); //validating guess
 
             if (validInput == 2) //quit game if player typed q or Q in input
             {
