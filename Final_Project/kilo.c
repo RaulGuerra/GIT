@@ -90,6 +90,12 @@ int getWindowSize(int *rows, int *cols) {
   }
 }
 
+/*** append buffer ***/
+struct abuf {
+  char *b;
+  int len;
+};
+#define ABUF_INIT {NULL, 0}
 
 
 /*** output ***/
@@ -98,7 +104,7 @@ void editorDrawRows() {
   int y;
   for (y = 0; y < E.screenrows; y++) {
     write(STDOUT_FILENO, "~", 1);
-    
+
     if (y < E.screenrows - 1) {
       write(STDOUT_FILENO, "\r\n", 2);
     }
